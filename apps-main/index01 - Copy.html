@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Kerala Treasury - App Portal (Local)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: #f8f9fc;
+            min-height: 100vh;
+            padding: 30px 20px 40px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header Section - Minimal */
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+            animation: fadeInDown 0.5s ease;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: #1e293b;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 0.95rem;
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        /* Apps Grid - Mobile App Style */
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 140px));
+            gap: 32px 24px;
+            justify-content: center;
+            animation: fadeIn 0.6s ease;
+        }
+
+        /* App Card - Like Mobile App Icon */
+        .app-link {
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            cursor: pointer;
+        }
+
+        .app-link:hover {
+            transform: translateY(-6px);
+        }
+
+        /* Icon Container - Mobile App Style */
+        .app-icon-wrapper {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            max-width: 120px;
+            margin: 0 auto 12px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.02);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-link:hover .app-icon-wrapper {
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+            transform: scale(1.02);
+        }
+
+        /* Actual Icon Image */
+        .app-icon {
+            width: 55%;
+            height: 55%;
+            object-fit: contain;
+            transition: transform 0.2s ease;
+        }
+
+        .app-link:hover .app-icon {
+            transform: scale(1.05);
+        }
+
+        /* Default Icon (when no logo URL) */
+        .default-icon {
+            width: 55%;
+            height: 55%;
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(59,130,246,0.2);
+            transition: transform 0.2s ease;
+        }
+
+        .app-link:hover .default-icon {
+            transform: scale(1.05);
+        }
+
+        /* App Name */
+        .app-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #1e293b;
+            margin-bottom: 4px;
+            line-height: 1.3;
+            word-break: break-word;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        /* Loading & Error States */
+        .loading-state, .error-state, .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            max-width: 500px;
+            margin: 40px auto;
+        }
+
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border: 3px solid #e2e8f0;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 0 auto 18px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Footer - Minimal */
+        .footer {
+            text-align: center;
+            margin-top: 56px;
+            padding-top: 24px;
+            color: #94a3b8;
+            font-size: 0.75rem;
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+
+        /* Manual Add Button */
+        .manual-add-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #3b82f6;
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            font-size: 28px;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        .manual-add-btn:hover {
+            background: #1e40af;
+            transform: scale(1.05);
+        }
+
+        /* Modal for adding apps */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #1e293b;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        .modal-content button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-right: 10px;
+        }
+
+        .modal-content button:hover {
+            background: #1e40af;
+        }
+
+        .close-modal {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .close-modal:hover {
+            background: #cbd5e1;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 20px 16px 32px;
+            }
+            
+            .header h1 {
+                font-size: 1.7rem;
+            }
+            
+            .apps-grid {
+                grid-template-columns: repeat(auto-fill, minmax(90px, 100px));
+                gap: 24px 16px;
+            }
+            
+            .app-icon-wrapper {
+                border-radius: 20px;
+            }
+            
+            .app-name {
+                font-size: 0.75rem;
+            }
+            
+            .default-icon {
+                font-size: 26px;
+            }
+
+            .manual-add-btn {
+                width: 48px;
+                height: 48px;
+                bottom: 20px;
+                right: 20px;
+                font-size: 24px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .apps-grid {
+                gap: 40px 32px;
+            }
+        }
+
+        .app-link:active .app-icon-wrapper {
+            transform: scale(0.96);
+            transition: transform 0.1s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 App Portal</h1>
+            <p>Kerala Treasury - Local Applications</p>
+        </div>
+        
+        <div id="apps-container">
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Loading applications...</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2026 Kerala Treasury | Local Version</p>
+            <p style="font-size: 0.7rem; margin-top: 8px;">Edit apps.txt to add or modify applications</p>
+        </div>
+    </div>
+
+    <!-- Manual Add Button (optional) -->
+    <div class="manual-add-btn" onclick="openAddModal()" title="Add New App">+</div>
+
+    <!-- Modal for adding apps manually -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <h3>Add New Application</h3>
+            <input type="text" id="appFolder" placeholder="Folder Name (e.g., App04)" autocomplete="off">
+            <input type="text" id="appLogo" placeholder="Logo URL (optional)" autocomplete="off">
+            <button onclick="addAppManually()">Add Application</button>
+            <button class="close-modal" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // Path to the apps configuration file (local)
+        const APPS_CONFIG_URL = './apps.txt';
+        
+        // Store current apps for local storage backup
+        let currentApps = [];
+        
+        // Fetch and parse apps.txt
+        async function loadApplications() {
+            const container = document.getElementById('apps-container');
+            
+            try {
+                // Try to load from apps.txt first
+                const response = await fetch(APPS_CONFIG_URL);
+                
+                if (!response.ok) {
+                    // If apps.txt doesn't exist, try to load from localStorage
+                    const savedApps = localStorage.getItem('localApps');
+                    if (savedApps) {
+                        currentApps = JSON.parse(savedApps);
+                        renderAppsGrid(container, currentApps);
+                        return;
+                    }
+                    throw new Error('apps.txt not found');
+                }
+                
+                const text = await response.text();
+                const lines = text.split('\n').filter(line => line.trim() && !line.startsWith('#'));
+                
+                const apps = [];
+                
+                for (const line of lines) {
+                    const parts = line.split(',').map(part => part.trim());
+                    if (parts.length >= 1 && parts[0]) {
+                        const folderName = parts[0];
+                        const customPath = parts.length >= 2 && parts[1] ? parts[1] : null;
+                        const logoUrl = parts.length >= 3 && parts[2] ? parts[2] : null;
+                        
+                        let appPath;
+                        if (customPath) {
+                            appPath = customPath;
+                        } else {
+                            // For local use, ensure correct path format
+                            appPath = `./${folderName}/`;
+                        }
+                        
+                        apps.push({
+                            name: formatAppName(folderName),
+                            folder: folderName,
+                            path: appPath,
+                            logoUrl: logoUrl
+                        });
+                    }
+                }
+                
+                if (apps.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p style="margin-bottom: 12px;">📂 No applications configured</p>
+                            <p style="font-size: 0.85rem; color: #64748b;">Create apps.txt file in this folder with app names</p>
+                            <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 12px;">Format: AppName,OptionalPath,LogoURL</p>
+                            <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 8px;">Example: App01,,</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                currentApps = apps;
+                // Save to localStorage as backup
+                localStorage.setItem('localApps', JSON.stringify(apps));
+                renderAppsGrid(container, apps);
+                
+            } catch (error) {
+                console.error('Error loading apps:', error);
+                
+                // Try to load from localStorage as fallback
+                const savedApps = localStorage.getItem('localApps');
+                if (savedApps) {
+                    currentApps = JSON.parse(savedApps);
+                    renderAppsGrid(document.getElementById('apps-container'), currentApps);
+                } else {
+                    document.getElementById('apps-container').innerHTML = `
+                        <div class="error-state">
+                            <p style="margin-bottom: 12px;">⚠️ Could not load applications</p>
+                            <p style="font-size: 0.85rem; color: #64748b;">Create apps.txt file in this folder</p>
+                            <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 12px;">Example apps.txt content:</p>
+                            <pre style="background: #f1f5f9; padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 11px; text-align: left;">
+App01,,
+App02,,
+FinancialDashboard,,
+EmployeePortal,,https://example.com/logo.png
+                            </pre>
+                        </div>
+                    `;
+                }
+            }
+        }
+        
+        function formatAppName(folderName) {
+            // Convert folder name to readable title for local display
+            if (folderName.includes('-') || folderName.includes('_')) {
+                return folderName
+                    .split(/[-_]/)
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                    .join(' ');
+            }
+            return folderName;
+        }
+        
+        function renderAppsGrid(container, apps) {
+            const cardsHtml = `
+                <div class="apps-grid">
+                    ${apps.map(app => `
+                        <a href="${escapeHtml(app.path)}" target="_blank" class="app-link" rel="noopener noreferrer">
+                            <div class="app-icon-wrapper">
+                                ${app.logoUrl && app.logoUrl.trim() ? 
+                                    `<img src="${escapeHtml(app.logoUrl)}" alt="${escapeHtml(app.name)}" class="app-icon" 
+                                        onerror="this.style.display='none'; this.parentElement.querySelector('.default-icon').style.display='flex';">` : 
+                                    ''
+                                }
+                                <div class="default-icon" ${app.logoUrl && app.logoUrl.trim() ? 'style="display: none;"' : ''}>
+                                    ${escapeHtml(app.name.charAt(0).toUpperCase())}
+                                </div>
+                            </div>
+                            <div class="app-name">${escapeHtml(app.name)}</div>
+                        </a>
+                    `).join('')}
+                </div>
+            `;
+            
+            container.innerHTML = cardsHtml;
+        }
+        
+        function openAddModal() {
+            document.getElementById('addModal').style.display = 'flex';
+        }
+        
+        function closeModal() {
+            document.getElementById('addModal').style.display = 'none';
+            document.getElementById('appFolder').value = '';
+            document.getElementById('appLogo').value = '';
+        }
+        
+        function addAppManually() {
+            const folderName = document.getElementById('appFolder').value.trim();
+            if (!folderName) {
+                alert('Please enter a folder name');
+                return;
+            }
+            
+            const logoUrl = document.getElementById('appLogo').value.trim();
+            
+            const newApp = {
+                name: formatAppName(folderName),
+                folder: folderName,
+                path: `./${folderName}/`,
+                logoUrl: logoUrl || null
+            };
+            
+            currentApps.push(newApp);
+            localStorage.setItem('localApps', JSON.stringify(currentApps));
+            
+            // Re-render
+            const container = document.getElementById('apps-container');
+            renderAppsGrid(container, currentApps);
+            
+            closeModal();
+            
+            // Optional: Also append to apps.txt if you want to save to file
+            appendToAppsTxt(folderName, logoUrl);
+        }
+        
+        function appendToAppsTxt(folderName, logoUrl) {
+            // This is a helper function - in a real local environment, 
+            // you'd need to handle file writing differently
+            console.log(`To add to apps.txt, append: ${folderName},,${logoUrl || ''}`);
+            alert(`Please add this line to apps.txt:\n${folderName},,${logoUrl || ''}`);
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+        
+        // Load applications when page loads
+        loadApplications();
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('addModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>

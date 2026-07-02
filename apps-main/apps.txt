@@ -1,0 +1,6 @@
+App01,,
+App02,,
+FinancialDashboard,,
+EmployeePortal,,
+DocumentManager,,https://example.com/logo.png
+Certificate Generator,./certificate-generator/index.html
